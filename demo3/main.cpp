@@ -5,6 +5,7 @@
 Ticker servo_ticker;
 PwmOut pin5(D5), pin6(D6);
 BBCar car(pin5, pin6, servo_ticker);
+DigitalInOut ping(D10);
 
 BufferedSerial pc(USBTX,USBRX); //tx,rx
 BufferedSerial uart(D1,D0); //tx,rx
@@ -99,7 +100,7 @@ void go() {
         ThisThread::sleep_for(1000ms);
         ok++;
         }    
-    printf("time %f", t1);    
+    //printf("time %f", t1);    
     else if(ry1 - 180 < 0 && ok == 0) {
         //t1 = 1000 * (tz1 * 2 / 3 / );
         //if(tz1 < 0) tz1 = -tz1;
@@ -121,7 +122,22 @@ void go() {
         ThisThread::sleep_for(1000ms);
         ok++;
     }
-        
+    ping.output();
+        ping = 0; wait_us(200);
+        ping = 1; wait_us(5);
+        ping = 0; wait_us(5);
+
+        ping.input();
+        while(ping.read() == 0);
+        tt.start();
+        while(ping.read() == 1);
+        val = tt.read();
+        printf("Ping = %lf\r\n", val*17700.4f);
+        tt.stop();
+        tt.reset();
+
+       // ThisThread::sleep_for(1s);
+	    ThisThread::sleep_for(120ms);    
        // printf("time %f", tt);
     }    
 }
